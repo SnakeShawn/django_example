@@ -1,2 +1,3 @@
 # django_example
-##An example of django.
+##An integral example of django.
+
