@@ -1,0 +1,8 @@
+v = VCFReader(<%Param1%>)
+#v = VCFReader(<%Param2%>)
+pos = (20,14370)
+
+r = v.getByPos(pos)
+
+print(r.is_snp)
+

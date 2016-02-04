@@ -1,0 +1,59 @@
+
+v = VCFReader('./vcf-file/tb.vcf.gz')
+
+pos = ((20,14370),(20,17330),(20,1110696),(20,1230237),(20,1234567))
+
+dna = v.getAllelesByPos(pos)
+
+print(dna[0].alleles)
+print(dna[1].alleles)
+if dna[0].testGenotype('G,G') == true
+    if dna[1].testGenotype('T,T')
+        print('Matching!')
+    else
+        print('Inside:Not!')
+else
+    print('Out:Not!')
+
+
+#dna[0].testGenotype('GT')
+#dna[0].testGenotype('GT',1)
+#if dna[0]=='AG'
+#    if dna[1]=='AT'
+#        if dna[2]=='GT'
+#            print('Matching!')
+#        else
+#            print('Not Matching!')
+#    else
+#        print('Not Matching!')
+#else
+#    print('Not Matching!')
+
+
+file1= '/Users/xuzhang/Documents/TOOLS/PYTHON/Django/django_example/compiler/quackCompiler/vcf-file/tb.vcf.gz'
+
+v = VCFReader(<%file1%>)
+
+pos = (20,14370)
+
+r = v.getByPos(pos)
+
+print(r.is_snp)
+
+########
+
+poses = ((20,14370),(20,17330),(20,1110696),(20,1230237),(20,1234567))
+
+dna = v.getAllelesByPos(poses)
+
+if dna[0].testGenotype('G,G') or dna[2].testGenotype('T,T')
+    if dna[1].testGenotype('T,T')
+        printString('Matching!')
+    else
+        printString('Inside:Not!')
+else
+    printString('Out:Not!')
+
+file1= '/Users/xuzhang/Documents/TOOLS/PYTHON/Django/django_example/quackCompiler/vcf-file/tb.vcf.gz'
+
+/Users/xuzhang/Documents/TOOLS/PYTHON/Django/django_example/data/developer/file/tb.vcf.gz

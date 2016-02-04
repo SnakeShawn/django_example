@@ -1,0 +1,3 @@
+
+p = Paternit('./paternit-file/M.txt')
+print(p.filename)
