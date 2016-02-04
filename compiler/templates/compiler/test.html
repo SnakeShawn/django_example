@@ -1,0 +1,79 @@
+
+<form action="{% url 'compiler:invoke' %}" method="post">
+	{% csrf_token %}
+	file1:<input type="text" name="file1"/> <br />
+	<textarea name="script" cols="100" rows="10" > </textarea>
+	<br />
+	<input type="submit" value="submit" />
+</form>
+
+
+
+
+<script type="text/javascript">
+      $.ajaxSetup({
+            data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+        });
+
+        paramCount = 1; // Count the parameter list.
+
+        $(function(){
+            $('[data-action="run"]').click(function(event) {
+            var editor = ace.edit("coding");
+            var content = editor.getSession().getValue();
+
+            var jsonContent = '{"script":"'+content+'"';
+
+            var jsonContent = jsonContent + ',' + '"paramCount":"' + (paramCount-1) + '"';
+
+            var param = {};
+
+
+            var paramList = [];
+            if(paramCount-1 > 0){
+                jsonContent = jsonContent + ',"paramList":[';
+                for (var i=1;i<paramCount;i++){
+                    //param.param[i] = $("#Param"+i).val();
+                    if(i == 1){
+                        jsonContent = jsonContent + '{\"Param' + i + '\":\"'+ $("#Param"+i).val() +'\"}'
+                    } else {
+                        jsonContent = jsonContent + ',{\"Param' + i + '\":\"'+ $("#Param"+i).val() +'\"}'
+                    }
+
+                }
+                jsonContent = jsonContent+"]"
+            }
+            jsonContent = jsonContent+"}"
+            alert(jsonContent);
+            param.jsonContent = jsonContent;
+            $.ajax({
+                type:"POST",
+                data:param,
+                url: "{% url 'compiler:compile' %}",
+                //url: "/compiler/compile",
+                success : function(data) {
+                    alert("Success!!")
+                }
+            });
+          });
+
+          $('#add-param').click(function(event) {
+                label = "Param"+paramCount;
+                $('#param-list').append('<div id="param-'+label+'">'+label+': <input type="text" id="'+label+'"/> <br /><br /></div>')
+                paramCount = paramCount + 1;
+          });
+
+          $('#remove-param').click(function(event) {
+                if(paramCount > 1){
+                    paramCount = paramCount - 1;
+
+                    label = "Param"+paramCount;
+                    $("#param-"+label).remove();
+
+                } else {
+                    paramCount = 1;
+                }
+          });
+
+        });
+      </script>

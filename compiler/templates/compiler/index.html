@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="code visualization">
+    <meta name="keywords" content="code visualization, visualize code, code, c, c++, pyhton, java">
+    <meta name="UI-Designed-By" content="Fang Wei">
+    <title>Compiler</title>
+    <link href="/static/compiler/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/compiler/css/style.css" rel="stylesheet">
+      <link href="/static/compiler/css/JSAV.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="/static/compiler/js/bootstrap.min.js"></script>
+    <script src="/static/compiler/js/jquery-linedtextarea.js"></script>
+     <script src="/static/compiler/js/coding.js"></script>
+     <script src="/static/compiler/js/jquery.transit.js"></script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.1.3/ace.js"></script>
+      <script src="/static/compiler/js/raphael.js"></script>
+      <script src="/static/compiler/js/JSAV.js"></script>
+
+      <script type="text/javascript">
+      $.ajaxSetup({
+            data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+        });
+
+        paramCount = 1; // Count the parameter list.
+
+        $(function(){
+            $('[data-action="run"]').click(function(event) {
+            var editor = ace.edit("coding");
+            var content = editor.getSession().getValue();
+
+            var param = {};
+            param.script = content;
+            param.paramCount = paramCount -1;
+            param.modelName = $("#model-name").val();
+
+            if(paramCount-1 > 0){
+                jsonContent = '{';
+                for (var i=1;i<paramCount;i++){
+                    //param.param[i] = $("#Param"+i).val();
+                    if(i == 1){
+                        jsonContent = jsonContent + '\"Param' + i + '\":\"'+ $("#Param"+i).val() +'\"'
+                    } else {
+                        jsonContent = jsonContent + ',\"Param' + i + '\":\"'+ $("#Param"+i).val() +'\"'
+                    }
+
+                }
+                jsonContent = jsonContent+"}"
+                param.jsonContent = jsonContent;
+            }
+
+            $.ajax({
+                type:"POST",
+                data:param,
+                url: "{% url 'compiler:compile' %}",
+                success : function(data) {
+                    data = JSON.parse(data);
+                    alert("Success!!")
+                    //alert(data["resultlist"].length)
+                    $("#resultlist").text("");     //Clear the div.
+                    for (var i=0; i < data["resultlist"].length; i++) {
+                        $("#resultlist").append(data["resultlist"][i])
+                        $("#resultlist").append("<br />")
+                    }
+
+                    //$("#resultlist").append(data["resultlist"]);    //Append the result to div.
+                }
+            });
+          });
+
+          $('#add-param').click(function(event) {
+                label = "Param"+paramCount;
+                //$('#param-list').append('<div id="param-'+label+'">'+label+':<input type="text" id="'+label+'" style="width:360px;"/><br /><br /></div>')
+                $('#param-list').append('<tr id="param-'+label+'"><td style="width:100px;">'+label+':</td><td style="width:360px;"><input type="text" id="'+label+'" style="width:300px;" /></td></tr></div>')
+                paramCount = paramCount + 1;
+          });
+
+          $('#remove-param').click(function(event) {
+                if(paramCount > 1){
+                    paramCount = paramCount - 1;
+
+                    label = "Param"+paramCount;
+                    $("#param-"+label).remove();
+
+                } else {
+                    paramCount = 1;
+                }
+          });
+
+        });
+      </script>
+  </head>
+
+<body id="coding_body">
+    <div id="header">
+      <div class="container monikai">
+          <a href="{% url 'compiler:index' %}" id="logo" class="pull-left"><span class="glyphicon glyphicon-chevron-left"></span><span class="glyphicon glyphicon-wrench"></span><span class="glyphicon glyphicon-chevron-right"></span>QuackCompiler</a>
+         <ul>
+                  <li class="active"><a href="{% url 'compiler:index' %}">» Coding</a></li>
+          </ul>
+      </div>
+    </div>
+    <form action="{% url 'compiler:compile' %}" id="coding-coding">
+    <div class="container monokai">
+      <div class="row">
+        <div class="col-xs-6">
+                    <h4>The Model's Name : <span class="glyphicon glyphicon-exclamation-sign" data-placement="bottom" data-toggle="popover" title="Read Me" data-content="You must Give your model a name befor you Run or Save!"></span></h4>
+                    <input type="text" id="model-name" />
+                   <h4>Your code here : <span class="glyphicon glyphicon-exclamation-sign" data-placement="bottom" data-toggle="popover" title="Read Me" data-content="Try coding and debugging by yourself!      You have two options:     1. TYPE your code here, 2. or click on [Attach] button to UPLOAD a local file. Note: the existing code will be replaced by the content uploaded! "></span></h4>
+              <div id="coding"></div>
+          </div>
+        <div class="col-xs-6">
+          <h4>Parameters :</h4>
+          <div id="v">
+              <div id="param-list">
+              <br />
+                  <table border="0">
+                      <tr>
+                        <th style="width:100px;">Name</th>
+                        <th style="width:360px;">Value</th>
+                      </tr>
+                  </table>
+
+            </div>
+              <br />
+              <center><button type="button" id="add-param">Add</button><button type="button" id="remove-param">Remove</button></center>
+          </div>
+          <div id="errorMsg">
+            » console: <br>
+              <div id="resultlist"></div>
+          </div>
+        </div>
+        <div class="coding-btn-group btn-group pull-left btn-group-md">
+            <div class="btn-group dropup">
+            <button type="button" class="btn btn-default dropdown-toggle  " data-toggle="dropdown">
+              <span class="glyphicon glyphicon-wrench"></span> Theme
+              <span class="caret"></span>
+              <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu" id="changeTheme" role="menu">
+              <li><a href="#" data-theme="monokai">Monokai <span class="glyphicon glyphicon-ok"></span></a></li>
+              <li><a href="#" data-theme="cobalt">Cobalt</a></li>
+              <li><a href="#" data-theme="solarized_light">Solarized</a></li>
+              <input type="hidden" name="theme" value="monokai">
+            </ul>
+          </div>
+            <button type="button" class="btn btn-default" data-action="run">
+              <span class="glyphicon glyphicon-play"></span>
+              Run
+            </button>
+            <button type="button" class="btn btn-default btn-file">
+              <input type="file" accept=".txt">
+              <span class="glyphicon glyphicon-paperclip"></span> Attach
+            </button>
+
+          </div>
+      </div>
+        </div>
+     </form>
+  </body>
+</html>
+
